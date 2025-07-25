@@ -1,308 +1,55 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XO: Neon Clash</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap');
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <title> A7 </title>
+    
 
-        :root {
-            --bg-color: #0d0f1e;
-            --cell-bg: #1a1c3a;
-            --glow-cyan: #00ffff;
-            --glow-magenta: #ff00ff;
-            --text-color: #f0f0f0;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Cairo', sans-serif;
-            overflow: hidden;
-            perspective: 1000px;
-        }
-
-        #game-container {
-            position: relative;
-            transform: rotateX(15deg);
-            transform-style: preserve-3d;
-        }
-
-        #board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 15px;
-            position: relative;
-        }
-
-        .cell {
-            background-color: var(--cell-bg);
-            border-radius: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 4em;
-            font-weight: 700;
-            cursor: pointer;
-            user-select: none;
-            border: 2px solid #3a3c6a;
-            box-shadow: 0 0 10px #00000088;
-            transition: all 0.3s ease;
-        }
-
-        .cell:not(.occupied):hover {
-            border-color: var(--glow-cyan);
-            transform: translateZ(10px);
-            box-shadow: 0 0 20px var(--glow-cyan);
-        }
-
-        @keyframes place-mark {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .cell .mark {
-            animation: place-mark 0.4s ease-out;
-        }
-
-        .x { color: var(--glow-cyan); text-shadow: 0 0 15px var(--glow-cyan); }
-        .o { color: var(--glow-magenta); text-shadow: 0 0 15px var(--glow-magenta); }
-
-        /* شاشات النهاية */
-        .end-screen {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(13, 15, 30, 0.9);
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            border-radius: 15px;
-            animation: fade-in 0.5s ease;
-        }
-        
-        @keyframes fade-in {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .end-screen .message {
-            font-size: 3em;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .winner .message { color: var(--glow-cyan); text-shadow: 0 0 15px var(--glow-cyan); }
-        .game-over .message { color: #ff4757; text-shadow: 0 0 15px #ff4757; }
-        .draw .message { color: #f0f0f0; }
-
-        #play-again-btn {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            background-color: #f0f0f0;
-            color: var(--bg-color);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-
-        #play-again-btn:hover {
-            background-color: var(--glow-cyan);
-            box-shadow: 0 0 15px var(--glow-cyan);
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-    </style>
 </head>
+
 <body>
-    <div id="game-container">
-        <div id="board"></div>
-        <div id="end-screen" class="end-screen">
-            <div class="message"></div>
-            <button id="play-again-btn" style="display:none;">العب مرة أخرى</button>
+    <!-- HEADER -->
+    <div class="header">
+        <img class="logo" src="data:image/png;base64,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" />
+        <div class="header-links">
+            <a href="Ahmed.html">home</a>
+            <a href="#">review</a>
+            <a href="about.html">about</a>
+            <button class="button btn"onclick="window.location.href='login.html'">sign in</button>
         </div>
+
     </div>
+    <!-- landing page -->
+    <div class="landing-page">
 
-    <!-- الأصوات -->
-    <audio id="sound-place-x" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/tick.mp3"></audio>
-    <audio id="sound-place-o" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/tock.mp3"></audio>
-    <audio id="sound-win" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/success.mp3"></audio>
-    <audio id="sound-lose" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/fail.mp3"></audio>
-    <audio id="sound-bg" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/frontier.mp3" loop></audio>
-
-    <script>
-        const boardElement = document.getElementById('board');
-        const endScreenElement = document.getElementById('end-screen');
-        const endScreenMessage = endScreenElement.querySelector('.message');
-        const playAgainBtn = document.getElementById('play-again-btn');
-
-        const sounds = {
-            placeX: document.getElementById('sound-place-x'),
-            placeO: document.getElementById('sound-place-o'),
-            win: document.getElementById('sound-win'),
-            lose: document.getElementById('sound-lose'),
-            bg: document.getElementById('sound-bg')
-        };
-        sounds.bg.volume = 0.1;
-
-        const PLAYER = 'X';
-        const AI = 'O';
-        let currentPlayer = PLAYER;
-        let board = ['', '', '', '', '', '', '', '', ''];
-        let gameActive = true;
-        let musicStarted = false;
-
-        const winningCombos = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-        ];
-
-        function createBoard() {
-            boardElement.innerHTML = '';
-            board.forEach((_, index) => {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.index = index;
-                cell.addEventListener('click', handleCellClick);
-                boardElement.appendChild(cell);
-            });
-        }
-
-        function handleCellClick(e) {
-            if (!musicStarted) {
-                sounds.bg.play();
-                musicStarted = true;
-            }
-
-            const index = e.target.dataset.index;
-            if (board[index] !== '' || !gameActive || currentPlayer !== PLAYER) {
-                return;
-            }
-
-            makeMove(index, PLAYER);
-
-            if (gameActive) {
-                setTimeout(aiMove, 500);
-            }
-        }
-
-        function makeMove(index, player) {
-            if (board[index] !== '' || !gameActive) return;
-
-            board[index] = player;
-            const cell = boardElement.children[index];
-            cell.innerHTML = `<span class="mark">${player}</span>`;
-            cell.classList.add(player.toLowerCase(), 'occupied');
-            
-            sounds[player === PLAYER ? 'placeX' : 'placeO'].play();
-
-            const winner = checkWinner();
-            if (winner) {
-                endGame(winner);
-            } else if (board.every(cell => cell !== '')) {
-                endGame('draw');
-            } else {
-                currentPlayer = (currentPlayer === PLAYER) ? AI : PLAYER;
-            }
-        }
-
-        function aiMove() {
-            if (!gameActive) return;
-            // AI Logic: 1. Win, 2. Block, 3. Random
-            let move = -1;
-
-            // 1. Check if AI can win
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] === '') {
-                    board[i] = AI;
-                    if (checkWinner() === AI) move = i;
-                    board[i] = ''; // backtrack
-                }
-            }
-
-            // 2. Check if AI needs to block
-            if (move === -1) {
-                for (let i = 0; i < board.length; i++) {
-                    if (board[i] === '') {
-                        board[i] = PLAYER;
-                        if (checkWinner() === PLAYER) move = i;
-                        board[i] = ''; // backtrack
-                    }
-                }
-            }
-            
-            // 3. Make a random move
-            if (move === -1) {
-                do {
-                    move = Math.floor(Math.random() * 9);
-                } while (board[move] !== '');
-            }
-            
-            makeMove(move, AI);
-        }
-
-        function checkWinner() {
-            for (const combo of winningCombos) {
-                const [a, b, c] = combo;
-                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                    return board[a];
-                }
-            }
-            return null;
-        }
-
-        function endGame(result) {
-            gameActive = false;
-            endScreenElement.style.display = 'flex';
-            
-            if (result === 'draw') {
-                endScreenMessage.textContent = 'تعادل!';
-                endScreenElement.className = 'end-screen draw';
-                sounds.lose.play();
-            } else if (result === PLAYER) {
-                endScreenMessage.textContent = 'Winner! 🏆';
-                endScreenElement.className = 'end-screen winner';
-                sounds.win.play();
-            } else {
-                endScreenMessage.textContent = 'Game Over';
-                endScreenElement.className = 'end-screen game-over';
-                sounds.lose.play();
-            }
-            
-            setTimeout(() => {
-                playAgainBtn.style.display = 'block';
-            }, 1000);
-        }
-
-        function resetGame() {
-            board = ['', '', '', '', '', '', '', '', ''];
-            gameActive = true;
-            currentPlayer = PLAYER;
-            endScreenElement.style.display = 'none';
-            playAgainBtn.style.display = 'none';
-            createBoard();
-        }
-
-        playAgainBtn.addEventListener('click', resetGame);
-        createBoard();
-
-    </script>
+    </div>
+    <span>welcome to review medical</span>
+    <h1>healthcare insights: Navigation paralysis and thanks </h1>
+    <p>"Welcome to our cornerstone for medical knowledge, where we believe that understanding is the first step towards
+        better health and well-being. 
+        🌟 In an era of constant medical breakthroughs and evolving health challenges, our
+        commitment remains unwavering: to provide clear, reliable, and empathetic insights into the conditions that
+        shape human lives.
+        🧠💡 Today, we turn our dedicated attention to a topic of immense importance and profound
+        human impact: paralysis. Through this in-depth article, we aim not only to demystify the medical complexities
+        surrounding this condition but also to illuminate the remarkable resilience of individuals living with it ✨
+        the
+        latest advancements in treatment and rehabilitation 🚀, and the vital support systems that empower them to
+        navigate their unique journeys with strength and dignity. 
+        💖 Join us as we explore the science, the stories, and
+        the hope that defines the path forward. ✨"
+    </p>
+    <div class="landing-page-Discover">
+        <input placeholder="start type ..." />
+        <button class="btn">Discover</button>
+    </div>
+    </div>
+    <div class="landing-page-image-container">
+        <img src="images/medical.jpg"/>
+    </div>
+    </div>
 </body>
-</html>

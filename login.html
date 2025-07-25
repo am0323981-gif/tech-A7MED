@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <style>
+        /* كل أكواد الـ CSS اللي بتنسق صفحة تسجيل الدخول بتاعتك */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container { 
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right; 
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 20px); 
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box; 
+        }
+        input[type="submit"] {
+            background-color: #007bff; 
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .links {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .links a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form>
+            <div class="form-group">
+                <label for="username-or-email">اسم المستخدم أو البريد الإلكتروني:</label>
+                <input type="text" id="username-or-email" name="username-or-email" placeholder="أدخل اسم المستخدم أو البريد الإلكتروني" required>
+            </div>
+            <div class="form-group">
+                <label for="password">كلمة المرور:</label>
+                <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="تسجيل الدخول">
+            </div>
+        </form>
+
+        <div class="links">
+            <a href="forgot_password.html">نسيت كلمة المرور؟</a> |
+            <a href="signup.html">إنشاء حساب جديد</a>
+        </div>
+    </div>
+    <script>
+        document.querySelector('input[type="submit"]').addEventListener('click', function(event) {
+            event.preventDefault(); 
+    
+            const usernameInput = document.getElementById('username-or-email');
+            const passwordInput = document.getElementById('password');
+    
+            const registeredEmail = localStorage.getItem('registeredEmail');
+            const registeredPassword = localStorage.getItem('registeredPassword');
+            const registeredFullName = localStorage.getItem('registeredFullName');
+    
+    
+            if (usernameInput && passwordInput && usernameInput.value === registeredEmail && passwordInput.value === registeredPassword) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', registeredFullName); 
+                localStorage.setItem('userEmail', registeredEmail); 
+    
+                // تم التعديل هنا!
+                window.location.href = 'Ahmed.html'; 
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة 😔');
+            }
+        });
+    </script>
+    
+</body>
+</html>

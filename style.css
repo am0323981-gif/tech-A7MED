@@ -1,0 +1,87 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(212, 207, 207);
+    font-family: 'roboto', sans-serif;
+}
+
+
+
+
+
+.header {
+    background-color: rgb(113, 87, 134);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.logo {
+    width: 125px;
+}
+
+.btn {
+    background-color: rgb(86, 47, 185);
+    padding: 0 40px;
+    color: #ffffff;
+    border-style: dashed;
+    border-radius: 15px;
+}
+
+.btn:hover {
+    background-color: blueviolet;
+}
+
+.header-links a {
+    color: #ffffff;
+    padding: 0 45px;
+    text-decoration: none;
+    border-radius: 15px;
+}
+
+.header-links a:hover {
+    background-color: rgb(86, 47, 185);
+}
+
+.header-links button {
+    background-color: rgb(86, 47, 185);
+    padding: 0 40px;
+    color: #ffffff;
+    border-style: dashed;
+    border-radius: 15px;
+
+}
+
+
+
+.landing-page {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 50px;
+
+}
+
+.landing-page-Discover input {
+    border-radius: 50px;
+    border: none;
+    outline: none;
+    height: 30px;
+    padding-left: 10px;
+    padding-right: 0 10px;
+}
+
+.landing-page-Discover button {
+    position: absolute;
+    left: 150px;
+    height: 30px;
+}
+
+.landing-page-image-container img {
+    border-radius: 20px;
+}
