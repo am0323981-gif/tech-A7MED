@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XO: Neon Clash</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap');
+
+        :root {
+            --bg-color: #0d0f1e;
+            --cell-bg: #1a1c3a;
+            --glow-cyan: #00ffff;
+            --glow-magenta: #ff00ff;
+            --text-color: #f0f0f0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Cairo', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        #game-container {
+            position: relative;
+            transform: rotateX(15deg);
+            transform-style: preserve-3d;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 15px;
+            position: relative;
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            border: 2px solid #3a3c6a;
+            box-shadow: 0 0 10px #00000088;
+            transition: all 0.3s ease;
+        }
+
+        .cell:not(.occupied):hover {
+            border-color: var(--glow-cyan);
+            transform: translateZ(10px);
+            box-shadow: 0 0 20px var(--glow-cyan);
+        }
+
+        @keyframes place-mark {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .cell .mark {
+            animation: place-mark 0.4s ease-out;
+        }
+
+        .x { color: var(--glow-cyan); text-shadow: 0 0 15px var(--glow-cyan); }
+        .o { color: var(--glow-magenta); text-shadow: 0 0 15px var(--glow-magenta); }
+
+        /* شاشات النهاية */
+        .end-screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(13, 15, 30, 0.9);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 15px;
+            animation: fade-in 0.5s ease;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .end-screen .message {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .winner .message { color: var(--glow-cyan); text-shadow: 0 0 15px var(--glow-cyan); }
+        .game-over .message { color: #ff4757; text-shadow: 0 0 15px #ff4757; }
+        .draw .message { color: #f0f0f0; }
+
+        #play-again-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            background-color: #f0f0f0;
+            color: var(--bg-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        #play-again-btn:hover {
+            background-color: var(--glow-cyan);
+            box-shadow: 0 0 15px var(--glow-cyan);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="board"></div>
+        <div id="end-screen" class="end-screen">
+            <div class="message"></div>
+            <button id="play-again-btn" style="display:none;">العب مرة أخرى</button>
+        </div>
+    </div>
+
+    <!-- الأصوات -->
+    <audio id="sound-place-x" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/tick.mp3"></audio>
+    <audio id="sound-place-o" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/tock.mp3"></audio>
+    <audio id="sound-win" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/success.mp3"></audio>
+    <audio id="sound-lose" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/fail.mp3"></audio>
+    <audio id="sound-bg" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/13420/frontier.mp3" loop></audio>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const endScreenElement = document.getElementById('end-screen');
+        const endScreenMessage = endScreenElement.querySelector('.message');
+        const playAgainBtn = document.getElementById('play-again-btn');
+
+        const sounds = {
+            placeX: document.getElementById('sound-place-x'),
+            placeO: document.getElementById('sound-place-o'),
+            win: document.getElementById('sound-win'),
+            lose: document.getElementById('sound-lose'),
+            bg: document.getElementById('sound-bg')
+        };
+        sounds.bg.volume = 0.1;
+
+        const PLAYER = 'X';
+        const AI = 'O';
+        let currentPlayer = PLAYER;
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let musicStarted = false;
+
+        const winningCombos = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function createBoard() {
+            boardElement.innerHTML = '';
+            board.forEach((_, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = index;
+                cell.addEventListener('click', handleCellClick);
+                boardElement.appendChild(cell);
+            });
+        }
+
+        function handleCellClick(e) {
+            if (!musicStarted) {
+                sounds.bg.play();
+                musicStarted = true;
+            }
+
+            const index = e.target.dataset.index;
+            if (board[index] !== '' || !gameActive || currentPlayer !== PLAYER) {
+                return;
+            }
+
+            makeMove(index, PLAYER);
+
+            if (gameActive) {
+                setTimeout(aiMove, 500);
+            }
+        }
+
+        function makeMove(index, player) {
+            if (board[index] !== '' || !gameActive) return;
+
+            board[index] = player;
+            const cell = boardElement.children[index];
+            cell.innerHTML = `<span class="mark">${player}</span>`;
+            cell.classList.add(player.toLowerCase(), 'occupied');
+            
+            sounds[player === PLAYER ? 'placeX' : 'placeO'].play();
+
+            const winner = checkWinner();
+            if (winner) {
+                endGame(winner);
+            } else if (board.every(cell => cell !== '')) {
+                endGame('draw');
+            } else {
+                currentPlayer = (currentPlayer === PLAYER) ? AI : PLAYER;
+            }
+        }
+
+        function aiMove() {
+            if (!gameActive) return;
+            // AI Logic: 1. Win, 2. Block, 3. Random
+            let move = -1;
+
+            // 1. Check if AI can win
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    board[i] = AI;
+                    if (checkWinner() === AI) move = i;
+                    board[i] = ''; // backtrack
+                }
+            }
+
+            // 2. Check if AI needs to block
+            if (move === -1) {
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = PLAYER;
+                        if (checkWinner() === PLAYER) move = i;
+                        board[i] = ''; // backtrack
+                    }
+                }
+            }
+            
+            // 3. Make a random move
+            if (move === -1) {
+                do {
+                    move = Math.floor(Math.random() * 9);
+                } while (board[move] !== '');
+            }
+            
+            makeMove(move, AI);
+        }
+
+        function checkWinner() {
+            for (const combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        function endGame(result) {
+            gameActive = false;
+            endScreenElement.style.display = 'flex';
+            
+            if (result === 'draw') {
+                endScreenMessage.textContent = 'تعادل!';
+                endScreenElement.className = 'end-screen draw';
+                sounds.lose.play();
+            } else if (result === PLAYER) {
+                endScreenMessage.textContent = 'Winner! 🏆';
+                endScreenElement.className = 'end-screen winner';
+                sounds.win.play();
+            } else {
+                endScreenMessage.textContent = 'Game Over';
+                endScreenElement.className = 'end-screen game-over';
+                sounds.lose.play();
+            }
+            
+            setTimeout(() => {
+                playAgainBtn.style.display = 'block';
+            }, 1000);
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = PLAYER;
+            endScreenElement.style.display = 'none';
+            playAgainBtn.style.display = 'none';
+            createBoard();
+        }
+
+        playAgainBtn.addEventListener('click', resetGame);
+        createBoard();
+
+    </script>
+</body>
+</html>
