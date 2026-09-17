@@ -64,9 +64,7 @@ If you'd like GitHub stats and top languages in your README, I can add dynamic b
 
 ## 📬 Connect with Me
 - Website: https://your-site.example
-- LinkedIn: https://linkedin.com/in/your-profile
-- Twitter: https://twitter.com/your-handle
-- Email: yourname@example.com
+- Email: am03239810@gmail.com
 
 (Provide links you want shown; I’ll format and add social badges.)
 
